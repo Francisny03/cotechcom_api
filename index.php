@@ -11,25 +11,41 @@ try {
         $url = explode("/", filter_var($_GET['api'],FILTER_SANITIZE_URL));
         switch ($url[0]) {
             //---------------
-            case 'services':
+            case 'Services':
                 if (empty($url[1])) {
                     getServices();
                 } else {
-                    getServices($url[1]);
+                    getService($url[1]);
                 }
                 break;
             //---------------
-            case 'slider':
+            case 'CountServices':
+                if (empty($url[1])) {
+                    getCountServices();
+                } else {
+                    getCountServices();
+                }
+                break;
+            //---------------
+            case 'Slider':
                 if (empty($url[1])) {
                     getSlider();
                 } else {
-                    throw new Exception("La demande n'est pas valide");
+                    getCountServices();
                 }
                 break;
             //---------------
             case 'equipe':
                 if (empty($url[1])) {
                     getEquipe();
+                } else {
+                    throw new Exception("La demande n'est pas valide");
+                }
+                break;
+            //---------------
+            case 'Realisation':
+                if (empty($url[1])) {
+                    getrealisation();
                 } else {
                     throw new Exception("La demande n'est pas valide");
                 }
@@ -52,7 +68,7 @@ try {
         if (!empty($postData['api'])) {
             $url = explode("/", filter_var($postData['api'], FILTER_SANITIZE_URL));
         switch ($url[0]) {
-            case 'createuser':
+            case 'PostService':
                 if (!empty($postData['data'])) {
                     $result = createServices($postData['data']);
                     sendJSON($result);
@@ -60,6 +76,34 @@ try {
                     throw new Exception("Données manquantes pour la création d'un utilisateur");
                 }
                 break;
+            //---------------
+            case 'UpdateServices':
+                if (!empty($postData['data'])) {
+                    $result = UpdateServices($postData['data']);
+                    sendJSON($result);
+                } else {
+                    throw new Exception("Données manquantes pour la création d'un utilisateur");
+                }
+                break;
+            //---------------
+            case 'Slider':
+                if (!empty($postData['data'])) {
+                    $result = createSleder($postData['data']);
+                    sendJSON($result);
+                } else {
+                    throw new Exception("Données manquantes pour la création d'un utilisateur");
+                }
+                break;
+            //---------------
+            case 'PostRealisation':
+                if (!empty($postData['data'])) {
+                    $result = Postrealisation($postData['data']);
+                    sendJSON($result);
+                } else {
+                    throw new Exception("Données manquantes pour la création d'un utilisateur");
+                }
+                break;
+            //---------------
             default:
                 throw new Exception("La demande POST n'est pas valide");
         }
