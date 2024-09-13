@@ -7,6 +7,7 @@ define("URL", str_replace("index.php","",(isset($_SERVER['HTTPS'])? "https" : "h
 function getcom(){
     return new PDO("mysql:host=localhost;dbname=cotechcom;charset=utf8","root","");
 }
+
 // function important
 function sendJSON($data) {
     header('Content-Type: application/json');
@@ -160,10 +161,6 @@ function saveImages($base64Image) {
         throw new Exception('Format d\'image invalide');
     }
 }
-
-
-
-
 
 //-----------------------Service-----------------------\\
 //------------- Post
@@ -350,6 +347,7 @@ function getCountServices() {
 
     sendJSON(['count' => $count]);
 }
+
 //-----------------------Slider-----------------------\\
 //------------- Post
 function createSleder($data) {
@@ -418,6 +416,98 @@ function getSlider() {
 
     sendJSON($formattedResults);
 }
+
+function getCountSlider() {
+    $pdo = getcom();
+    $req = "SELECT COUNT(*) AS count FROM slider";
+    $stmt = $pdo->prepare($req);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $count = $result['count'];
+    $stmt->closeCursor();
+
+    sendJSON(['count' => $count]);
+}
+
+//-----------------------partenaire-----------------------\\
+//------------- Post
+function createPartenaire($data) {
+    $pdo = getcom();
+
+    try {
+        error_log("Données reçues pour createSleder: " . print_r($data, true));
+
+        // Vérifiez que les données nécessaires sont présentes
+        if (!isset($data['title']) || !isset($data['images'])) {
+            throw new Exception("Informations requises manquantes");
+        }
+
+        // Enregistrez l'image
+        $targetFile = saveImage($data['images']);
+
+        // Préparez la requête d'insertion avec trois paramètres de liaison
+        $sql = "INSERT INTO partenaire (title, images) VALUES (?, ?)";
+        $stmt = $pdo->prepare($sql);
+
+        // Lier correctement les paramètres (3 au total)
+        $stmt->bindParam(1, $data['title']);
+        $stmt->bindParam(3, $targetFile);  // Correction: 3ème paramètre
+
+        $stmt->execute();
+
+        $response = [
+            "status" => "success",
+            "message" => "Slider créé avec succès"
+        ];
+        return $response;
+    } catch (Exception $e) {
+        error_log("Erreur dans createSleder: " . $e->getMessage());
+        $response = [
+            "status" => "error",
+            "message" => $e->getMessage()
+        ];
+        return $response;
+    }
+}
+
+
+//------------- Get
+function getPartenaire() {
+    $pdo = getcom();
+    // $req = "SELECT * FROM `slider` ";
+    $req = "SELECT * FROM `partenaire`";
+    $stmt = $pdo->prepare($req);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+
+    // Réstructurer le tableau pour inclure les informations de valu
+    $formattedResults = [];
+    foreach ($results as $row) {
+        $formattedResults[] = [
+            "id_partenaire" => $row["id_partenaire"],
+            "title" => $row["title"],
+            "image" => URL."".$row["images"],
+            "created_at" => $row["created_at"],
+            "updated_at" => $row["updated_at"]
+        ];
+    }
+
+    sendJSON($formattedResults);
+}
+
+function getCountPartenaire() {
+    $pdo = getcom();
+    $req = "SELECT COUNT(*) AS count FROM partenaire";
+    $stmt = $pdo->prepare($req);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $count = $result['count'];
+    $stmt->closeCursor();
+
+    sendJSON(['count' => $count]);
+}
+
 
 //-----------------------Equipe-----------------------\\
 //------------- Post
@@ -532,8 +622,6 @@ function PostRealisation($data) {
     }
 }
 
-
-
 //------------- Get
 function getrealisation() {
     $pdo = getcom();
@@ -567,7 +655,7 @@ function getrealisation() {
             "title" => $row["title"],
             "descriptions" => $row["descriptions"],
             "dates" => $row["dates"],
-            "images" => $row["images"],
+            "images" => URL .$row["images"],
             "imagess" => $imageUrls,  // Tableau des URLs d'images
             "created_at" => $row["created_at"],
             "updated_at" => $row["updated_at"]
@@ -577,7 +665,57 @@ function getrealisation() {
     sendJSON($formattedResults);
 }
 
+function getrealisationById($id) {
+    $pdo = getcom();
+    $req = "SELECT * FROM `realisation` WHERE id_realisation= $id";
+    $stmt = $pdo->prepare($req);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
 
+    // Réstructurer le tableau pour inclure les informations de valeur
+    if($row) {
+        // Vérifier si la colonne 'images' est non nulle et non vide avant de la décoder
+        $images = [];
+        if (!empty($row['imagess'])) {
+            $images = json_decode($row['imagess'], true);  // Décoder uniquement si non vide
+            if (!is_array($images)) {
+                $images = [];  // Si la chaîne décodée n'est pas un tableau, initialiser un tableau vide
+            }
+        }
 
+        // Ajouter l'URL de base pour chaque image
+        $imageUrls = [];
+        foreach ($images as $image) {
+            $imageUrls[] = URL . $image;  // Ajouter l'URL de base
+        }
+
+        // Créer une entrée formatée
+        $formattedResults[] = [
+            "id_realisation" => $row["id_realisation"],
+            "title" => $row["title"],
+            "descriptions" => $row["descriptions"],
+            "dates" => $row["dates"],
+            "images" => URL . $row["images"],
+            "imagess" => $imageUrls,  // Tableau des URLs d'images
+            "created_at" => $row["created_at"],
+            "updated_at" => $row["updated_at"]
+        ];
+    }
+
+    sendJSON($formattedResults);
+}
+
+function getCountRealisation() {
+    $pdo = getcom();
+    $req = "SELECT COUNT(*) AS count FROM realisation";
+    $stmt = $pdo->prepare($req);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $count = $result['count'];
+    $stmt->closeCursor();
+
+    sendJSON(['count' => $count]);
+}
 
 ?>

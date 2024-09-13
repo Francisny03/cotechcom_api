@@ -35,6 +35,14 @@ try {
                 }
                 break;
             //---------------
+            case 'CountSlider':
+                if (empty($url[1])) {
+                    getCountSlider();
+                } else {
+                    getCountSlider();
+                }
+                break;
+            //---------------
             case 'equipe':
                 if (empty($url[1])) {
                     getEquipe();
@@ -47,7 +55,31 @@ try {
                 if (empty($url[1])) {
                     getrealisation();
                 } else {
-                    throw new Exception("La demande n'est pas valide");
+                    getrealisationById($url[1]);
+                }
+                break;
+            //---------------
+            case 'CountRealisation':
+                if (empty($url[1])) {
+                    getCountRealisation();
+                } else {
+                    getCountRealisation();
+                }
+                break;
+            //---------------
+            case 'Partenaire':
+                if (empty($url[1])) {
+                    getSlider();
+                } else {
+                    getCountPartenaire();
+                }
+                break;
+            //---------------
+            case 'CountPartenaire':
+                if (empty($url[1])) {
+                    getCountPartenaire();
+                } else {
+                    getCountPartenaire();
                 }
                 break;
             //---------------
@@ -65,8 +97,8 @@ try {
         // Loguer les données reçues
         error_log("POST data: " . print_r($postData, true));
 
-        if (!empty($postData['api'])) {
-            $url = explode("/", filter_var($postData['api'], FILTER_SANITIZE_URL));
+    if (!empty($postData['api'])) {
+        $url = explode("/", filter_var($postData['api'], FILTER_SANITIZE_URL));
         switch ($url[0]) {
             case 'PostService':
                 if (!empty($postData['data'])) {
@@ -98,6 +130,15 @@ try {
             case 'PostRealisation':
                 if (!empty($postData['data'])) {
                     $result = Postrealisation($postData['data']);
+                    sendJSON($result);
+                } else {
+                    throw new Exception("Données manquantes pour la création d'un utilisateur");
+                }
+                break;
+            //---------------
+            case 'PostPartenaire':
+                if (!empty($postData['data'])) {
+                    $result = createPartenaire($postData['data']);
                     sendJSON($result);
                 } else {
                     throw new Exception("Données manquantes pour la création d'un utilisateur");
