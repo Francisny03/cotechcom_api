@@ -88,39 +88,6 @@ function saveImage($imageData) {
     }
 }
 
-// function saveImages($base64Image) {
-//     // Vérifie si l'image est bien en base64
-//     if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
-//         // Supprime la partie 'data:image/png;base64,'
-//         $base64Image = substr($base64Image, strpos($base64Image, ',') + 1);
-        
-//         // Obtenir le type de l'image (png, jpeg, etc.)
-//         $type = strtolower($type[1]); // jpg, png, gif
-        
-//         // Vérification de l'extension supportée
-//         if (!in_array($type, ['jpg', 'jpeg', 'png', 'gif'])) {
-//             throw new Exception('Type d\'image non supporté');
-//         }
-
-//         // Décoder l'image base64
-//         $base64Image = base64_decode($base64Image);
-
-//         if ($base64Image === false) {
-//             throw new Exception('Échec du décodage de l\'image');
-//         }
-
-//         // Générer un nom de fichier unique
-//         $fileName = uniqid() . '.' . $type;
-//         $filePath = 'images/' . $fileName; // Dossier de destination
-
-//         // Sauvegarder l'image dans le fichier
-//         file_put_contents($filePath, $base64Image);
-
-//         return $filePath; // Retourner le chemin du fichier pour l'enregistrement en base de données
-//     } else {
-//         throw new Exception('Format d\'image invalide');
-//     }
-// }
 
 function saveImages($base64Image) {
     if ($base64Image === null || !is_string($base64Image)) {
